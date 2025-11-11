@@ -1,0 +1,62 @@
+root = "."
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+# Array of commands to run before each build
+pre_cmd = []
+# Command to build the project
+cmd = "go build -o ./tmp/main ./cmd/server"
+# Command to run the binary
+bin = "./tmp/main"
+# Array of commands to run after building
+post_cmd = []
+# Array of extensions to watch
+include_ext = ["go", "tpl", "tmpl", "html"]
+# Array of extensions to ignore
+exclude_ext = ["_test.go"]
+# Directories to watch
+include_dir = ["cmd", "internal"]
+# Directories to ignore
+exclude_dir = ["vendor", "testdata", "tmp", "bin"]
+# Files to watch
+include_file = []
+# Files to ignore
+exclude_file = []
+# Arguments to pass to the binary
+args = []
+# Environment variables to set
+env = {}
+# Exclude files with regex
+exclude_regex = ["_test\\.go"]
+# Follow symlink
+follow_symlink = false
+# Polling interval for file changes
+poll = false
+# Polling interval in milliseconds
+poll_interval = 0
+# Delay before running command
+delay = 1000
+# Stop on error
+stop_on_root = false
+# Send interrupt signal before kill
+send_interrupt = false
+# Kill delay in milliseconds
+kill_delay = "0s"
+
+[log]
+# Show log time
+time = false
+# Show only main log
+main_only = false
+
+[color]
+# Customize colors
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[misc]
+# Delete tmp dir on exit
+clean_on_exit = true

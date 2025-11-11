@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  health-service:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - MICRO_SERVER_ADDRESS=:8080
+      - MICRO_REGISTRY=mdns
+    restart: unless-stopped

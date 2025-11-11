@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "engidone-auth/internal/signin/proto";
+
+service SigninService {
+  rpc Signin(SigninRequest) returns (SigninResponse) {}
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse) {}
+  rpc RefreshToken(RefreshTokenRequest) returns (SigninResponse) {}
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
+}
+
+// Mensajes para Signin
+message SigninRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message SigninResponse {
+  bool success = 1;
+  string message = 2;
+  string user_id = 3;
+  string username = 4;
+  string email = 5;
+  string token = 6;
+  int64 expires_at = 7;
+}
+
+// Mensajes para Validar Token
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  string message = 2;
+  string user_id = 3;
+  string username = 4;
+  string email = 5;
+}
+
+// Mensajes para Refrescar Token
+message RefreshTokenRequest {
+  string user_id = 1;
+  string token = 2;
+}
+
+// Mensajes para Obtener Usuario
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  bool success = 1;
+  string message = 2;
+  string user_id = 3;
+  string username = 4;
+  string email = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+}
