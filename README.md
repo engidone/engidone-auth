@@ -234,9 +234,78 @@ message GetUserResponse {
 - **gRPC**: Comunicación via Protocol Buffers
 - **Go-Kit**: Estructura de microservicios
 - **Clean Architecture**: Separación de capas
+- **SQLC**: Type-safe SQL queries
+- **MySQL**: Base de datos relacional
+- **YAML Seeders**: Sistema de datos iniciales basado en YAML
 - **Zap**: Logger estructurado
 
 ## 🔧 Desarrollo
+
+### 🌱 YAML Seeders
+
+El sistema incluye un potente sistema de seeders basado en YAML para poblar la base de datos con datos iniciales:
+
+#### **Estructura de Seeders:**
+```
+internal/database/seeders/
+├── seeders.yml           # Configuración principal
+├── users/                # Seeders de usuarios
+│   ├── seeder.yml       # Configuración del seeder
+│   └── data.yml         # Datos en YAML
+└── models.go             # Modelos y interfaces
+```
+
+#### **Configuración Principal (seeders.yml):**
+```yaml
+enabled: true
+seeders:
+  - name: users
+    enabled: true
+    order: 1
+    depends: []
+    description: "Seed default users for testing"
+```
+
+#### **Datos de Usuario (users/data.yml):**
+```yaml
+users:
+  - username: admin
+    email: admin@example.com
+    password: admin123
+    roles: ["admin", "superuser"]
+    active: true
+    metadata:
+      first_name: "Administrator"
+      last_name: "User"
+      created_at: "2024-01-01T00:00:00Z"
+```
+
+#### **Comandos de Seeders:**
+```bash
+# Ejecutar migraciones y seeders
+make run-seed
+
+# Probar seeders
+make test-seeders
+
+# Generar SQLC code
+make sqlc
+
+# Configuración inicial
+make dev-setup
+```
+
+#### **Usuarios Predefinidos:**
+| Username | Password | Roles | Estado |
+|----------|----------|-------|--------|
+| admin | admin123 | admin, superuser | ✅ Activo |
+| testuser | test123 | user | ✅ Activo |
+| john | john123 | user | ✅ Activo |
+| jane | jane123 | user, moderator | ✅ Activo |
+| developer | dev123 | user, developer | ✅ Activo |
+| alice | alice123 | user | ✅ Activo |
+| bob | bob123 | user | ❌ Inactivo |
+| charlie | charlie123 | user, moderator | ✅ Activo |
 
 ### Agregar Nuevo Servicio
 

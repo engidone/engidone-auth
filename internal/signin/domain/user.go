@@ -45,6 +45,7 @@ const (
 	ErrUserNotFound       = "USER_NOT_FOUND"
 	ErrUserDisabled       = "USER_DISABLED"
 	ErrInvalidToken       = "INVALID_TOKEN"
+	ErrInternalError      = "INTERNAL_ERROR"
 )
 
 // NewAuthError crea un nuevo error de autenticación

@@ -1,0 +1,9 @@
+# User Seeder Configuration
+type: users
+dependencies: []
+description: "Seeds users from YAML data files"
+data_file: "data.yml"
+options:
+  skip_duplicates: true
+  hash_passwords: true
+  batch_size: 100

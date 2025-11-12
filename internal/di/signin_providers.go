@@ -1,8 +1,11 @@
 package di
 
 import (
+	"database/sql"
+
 	"go.uber.org/fx"
 
+	"engidone-auth/internal/database"
 	"engidone-auth/internal/signin/domain"
 	"engidone-auth/internal/signin/infrastructure"
 	"engidone-auth/internal/signin/usecase"
@@ -11,6 +14,8 @@ import (
 // SigninModule provides all signin service dependencies
 var SigninModule = fx.Options(
 	fx.Provide(
+		database.NewConfig,
+		database.NewConnection,
 		NewUserRepository,
 		NewTokenService,
 		NewSigninUseCase,
@@ -18,11 +23,24 @@ var SigninModule = fx.Options(
 		NewRefreshTokenUseCase,
 		NewGetUserUseCase,
 	),
+	fx.Invoke(RunMigrationsAndSeeders),
 )
 
-// NewUserRepository provides a UserRepository implementation
-func NewUserRepository() domain.UserRepository {
-	return infrastructure.NewMemoryUserRepository()
+// NewUserRepository provides a UserRepository implementation using SQL
+func NewUserRepository(db *sql.DB) domain.UserRepository {
+	return infrastructure.NewSQLUserRepository(db)
+}
+
+// RunMigrations runs database migrations on application startup
+func RunMigrations(db *sql.DB) error {
+	migrator := database.NewMigrator(db, "internal/database/migrations")
+	return migrator.RunMigrations()
+}
+
+// RunMigrationsAndSeeders runs migrations and seeders on application startup
+func RunMigrationsAndSeeders(db *sql.DB) error {
+	migrator := database.NewMigrator(db, "internal/database/migrations")
+	return migrator.RunMigrationsAndSeeders()
 }
 
 // NewTokenService provides a TokenService implementation

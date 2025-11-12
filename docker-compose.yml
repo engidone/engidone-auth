@@ -1,11 +1,38 @@
 version: '3.8'
 
 services:
-  health-service:
+  mysql:
+    image: mysql:8.0
+    container_name: engidone-auth-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: engidone_auth
+      MYSQL_USER: engidone_user
+      MYSQL_PASSWORD: engidone_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  engidone-auth:
     build: .
     ports:
-      - "8080:8080"
+      - "9000:9000"
     environment:
-      - MICRO_SERVER_ADDRESS=:8080
-      - MICRO_REGISTRY=mdns
+      - SERVER_PORT=9000
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=engidone_auth
+      - DB_USER=engidone_user
+      - DB_PASSWORD=engidone_password
+    depends_on:
+      mysql:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  mysql_data:
