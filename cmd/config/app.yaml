@@ -1,0 +1,14 @@
+application:
+  name: engidone-auth
+  version: 1.0.0
+  server:
+    port: 9000
+database:
+  dsn: "{engine}://{user}:{password}@{host}:{port}/{db_name}?sslmode={ssl_mode}"
+  engine: postgres
+  username: engidone
+  password: engidone-pass
+  host: localhost
+  port: 5432
+  ssl_mode: disable
+  db_name: engidone_auth_db

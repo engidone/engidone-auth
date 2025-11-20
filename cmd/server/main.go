@@ -1,22 +1,26 @@
 package main
 
 import (
+	"engidoneauth/internal/config"
+	"engidoneauth/internal/greet"
+	"engidoneauth/internal/jwt"
+	"engidoneauth/internal/recovery"
+	"engidoneauth/internal/server"
+	"engidoneauth/internal/signin"
+	"engidoneauth/internal/users"
+
 	"go.uber.org/fx"
-	"engidone-auth/internal/di"
 )
 
 func main() {
 	app := fx.New(
-		// Application-level providers (logger, config)
-		di.LoggerModule,
-		di.ConfigModule,
-
-		// Domain-specific providers
-		di.HelloModule,
-		di.SigninModule,
-
-		// gRPC transport providers
-		di.GRPCModule,
+		config.ConfigModule,
+		server.ServerModule,
+		jwt.RecoveryModule,
+		greet.GreetModule,
+		users.UsersModule,
+		signin.SignInModule,
+		recovery.RecoveryModule,
 	)
 
 	app.Run()

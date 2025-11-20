@@ -16,7 +16,7 @@ Servicio de autenticación microservicio construido con **Go** y **gRPC**, imple
 ## 📁 Estructura del Proyecto
 
 ```
-engidone-auth/
+engidoneauth/
 ├── internal/
 │   ├── di/                      # 🔥 Dependency Injection con fx
 │   │   ├── app_providers.go     # Providers de aplicación (logger, config)
@@ -91,24 +91,24 @@ go build -o bin/server ./cmd/server
 
 **Salida esperada con fx:**
 ```
-[Fx] PROVIDE  *zap.Logger <= engidone-auth/internal/di.NewZapLogger()
-[Fx] PROVIDE  log.Logger <= engidone-auth/internal/di.NewGoKitLogger()
-[Fx] PROVIDE  *di.AppConfig <= engidone-auth/internal/di.NewAppConfig()
-[Fx] PROVIDE  domain.HelloService <= engidone-auth/internal/di.NewHelloService()
-[Fx] PROVIDE  domain.HelloUseCase <= engidone-auth/internal/di.NewHelloUseCase()
-[Fx] PROVIDE  domain.UserRepository <= engidone-auth/internal/di.NewUserRepository()
-[Fx] PROVIDE  domain.TokenService <= engidone-auth/internal/di.NewTokenService()
-[Fx] PROVIDE  domain.SigninUseCase <= engidone-auth/internal/di.NewSigninUseCase()
-[Fx] PROVIDE  domain.ValidateTokenUseCase <= engidone-auth/internal/di.NewValidateTokenUseCase()
-[Fx] PROVIDE  domain.RefreshTokenUseCase <= engidone-auth/internal/di.NewRefreshTokenUseCase()
-[Fx] PROVIDE  domain.GetUserUseCase <= engidone-auth/internal/di.NewGetUserUseCase()
-[Fx] PROVIDE  *grpc.Server <= engidone-auth/internal/di.NewGRPCServer()
-[Fx] PROVIDE  endpoints.Set <= engidone-auth/internal/di.NewHelloEndpoints()
-[Fx] PROVIDE  endpoints.Set <= engidone-auth/internal/di.NewSigninEndpoints()
-[Fx] PROVIDE  proto.HelloServiceServer <= engidone-auth/internal/di.NewHelloGRPCServer()
-[Fx] PROVIDE  proto.SigninServiceServer <= engidone-auth/internal/di.NewSigninGRPCServer()
-[Fx] PROVIDE  net.Listener <= engidone-auth/internal/di.NewTCPListener()
-[Fx] INVOKE   engidone-auth/internal/di.RegisterGRPCServices()
+[Fx] PROVIDE  *zap.Logger <= engidoneauth/internal/di.NewZapLogger()
+[Fx] PROVIDE  log.Logger <= engidoneauth/internal/di.NewGoKitLogger()
+[Fx] PROVIDE  *di.AppConfig <= engidoneauth/internal/di.NewAppConfig()
+[Fx] PROVIDE  domain.HelloService <= engidoneauth/internal/di.NewHelloService()
+[Fx] PROVIDE  domain.HelloUseCase <= engidoneauth/internal/di.NewHelloUseCase()
+[Fx] PROVIDE  domain.UserRepository <= engidoneauth/internal/di.NewUserRepository()
+[Fx] PROVIDE  domain.TokenService <= engidoneauth/internal/di.NewTokenService()
+[Fx] PROVIDE  domain.SigninUseCase <= engidoneauth/internal/di.NewSigninUseCase()
+[Fx] PROVIDE  domain.ValidateTokenUseCase <= engidoneauth/internal/di.NewValidateTokenUseCase()
+[Fx] PROVIDE  domain.RefreshTokenUseCase <= engidoneauth/internal/di.NewRefreshTokenUseCase()
+[Fx] PROVIDE  domain.GetUserUseCase <= engidoneauth/internal/di.NewGetUserUseCase()
+[Fx] PROVIDE  *grpc.Server <= engidoneauth/internal/di.NewGRPCServer()
+[Fx] PROVIDE  endpoints.Set <= engidoneauth/internal/di.NewHelloEndpoints()
+[Fx] PROVIDE  endpoints.Set <= engidoneauth/internal/di.NewSigninEndpoints()
+[Fx] PROVIDE  proto.HelloServiceServer <= engidoneauth/internal/di.NewHelloGRPCServer()
+[Fx] PROVIDE  proto.SigninServiceServer <= engidoneauth/internal/di.NewSigninGRPCServer()
+[Fx] PROVIDE  net.Listener <= engidoneauth/internal/di.NewTCPListener()
+[Fx] INVOKE   engidoneauth/internal/di.RegisterGRPCServices()
 
 msg==== Engidone Auth Service ===
 transport=gRPC addr=:9000
@@ -381,20 +381,20 @@ CMD ["./server"]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: engidone-auth
+  name: engidoneauth
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: engidone-auth
+      app: engidoneauth
   template:
     metadata:
       labels:
-        app: engidone-auth
+        app: engidoneauth
     spec:
       containers:
       - name: auth
-        image: engidone-auth:latest
+        image: engidoneauth:latest
         ports:
         - containerPort: 9000
         env:

@@ -1,38 +1,30 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: engidone-auth-mysql
+  postgres:
+    image: postgres:15-alpine
+    container_name: engidoneauth-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: engidone_auth
-      MYSQL_USER: engidone_user
-      MYSQL_PASSWORD: engidone_password
+      POSTGRES_DB: engidone_auth
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: engidone_password
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U root -d engidone_auth"]
       timeout: 20s
       retries: 10
 
-  engidone-auth:
+  engidoneauth:
     build: .
     ports:
       - "9000:9000"
-    environment:
-      - SERVER_PORT=9000
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_NAME=engidone_auth
-      - DB_USER=engidone_user
-      - DB_PASSWORD=engidone_password
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  mysql_data:
+  postgres_data:

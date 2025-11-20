@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	pb "engidone-auth/internal/hello/proto"
+	pb "engidoneauth/internal/hello/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

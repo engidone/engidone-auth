@@ -1,0 +1,11 @@
+name: recovery_codes
+description: Seed recovery codes data
+items:
+  - user_id: uuid_parse|4b6ce538-c26b-4399-99de-260a9e594ab8
+    code: uuid_string
+    is_valid: true
+    expires_at: add_minutes_to_now|5
+  - user_id: uuid_parse|7c88f39a-6120-4b6b-a20a-2351659e06df
+    code: uuid_string
+    is_valid: true
+    expires_at: add_minutes_to_now|5
