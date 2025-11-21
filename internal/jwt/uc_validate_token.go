@@ -2,31 +2,22 @@ package jwt
 
 import (
 	"engidoneauth/internal/apperror"
-	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
-func (uc *UseCase) ValidateToken(token string) (*TokenInfo, error) {
-	if len(token) < 7 || token[:7] != "Bearer " {
-		return nil, apperror.New(ErrInvalidToken, "Formato de token inválido")
+func (uc *UseCase) ValidateToken(tokenInput string) error {
+	token, err := jwt.Parse(tokenInput, func(token *jwt.Token) (any, error) {
+		return uc.certs.PublicKey, nil
+	})
+
+	if err != nil {
+		return apperror.New(ErrParsingToken, err.Error())
 	}
 
-	// For this implementation, extract userID from token
-	tokenData := token[7:] // Remove "Bearer "
-	userID := uc.extractUserIDFromToken(tokenData)
-	if userID == "" {
-		return nil, apperror.New(ErrInvalidToken, "Token inválido o expirado")
+	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return nil
+	} else {
+		return apperror.New(ErrInvalidToken, "Token invalid or expired")
 	}
-
-	return &TokenInfo{
-		UserID:    userID,
-		Token:     token,
-		ExpiresAt: time.Now().Add(uc.tokenDuration),
-		IssuedAt:  time.Now(),
-	}, nil
-}
-
-func (uc *UseCase) extractUserIDFromToken(tokenData string) string {
-	// In a real implementation, decode the token and extract userID
-	// Here, we simulate by returning a fixed userID for demonstration
-	return "user123"
 }

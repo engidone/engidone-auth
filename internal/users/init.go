@@ -1,21 +1,16 @@
 package users
 
 import (
-	"context"
 	"engidoneauth/internal/config"
-
-	"go.uber.org/fx"
+	"path/filepath"
 )
 
-func registerUsersLoader(lc fx.Lifecycle, users *[]User, paths config.Paths) {
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			loadedUsers, err := config.LoadFile[UserConfig](paths.Config + "/users.yaml")
-			if err != nil {
-				return err
-			}
-			*users = loadedUsers.Users
-			return nil
-		},
-	})
+func LoadUsers(path string) []User {
+	loadedUsers, err := config.LoadFile[UserConfig](filepath.Join(path, "users.yaml"))
+	
+	if err != nil {
+		panic(err)
+	}
+
+	return loadedUsers.Users
 }

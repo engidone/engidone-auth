@@ -11,14 +11,14 @@ import (
 	"github.com/google/uuid"
 )
 
-func (rp sqlRepository) updatePassword(userID uuid.UUID, newPassword string) (bool, error) {
+func (rp sqlRepository) updatePassword(userID string, newPassword string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	err := rp.dbq.UpdatePassword(ctx,
 		db.UpdatePasswordParams{
 			Password: newPassword,
-			UserID:   userID,
+			UserID:   uuid.MustParse(userID),
 		},
 	)
 

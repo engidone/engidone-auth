@@ -1,27 +1,42 @@
 package main
 
 import (
+	c "engidoneauth/common"
 	"engidoneauth/internal/config"
-	"engidoneauth/internal/greet"
 	"engidoneauth/internal/jwt"
-	"engidoneauth/internal/recovery"
 	"engidoneauth/internal/server"
-	"engidoneauth/internal/signin"
 	"engidoneauth/internal/users"
 
-	"go.uber.org/fx"
+	"engidoneauth/log"
+	"path/filepath"
 )
 
 func main() {
-	app := fx.New(
-		config.ConfigModule,
-		server.ServerModule,
-		jwt.RecoveryModule,
-		greet.GreetModule,
-		users.UsersModule,
-		signin.SignInModule,
-		recovery.RecoveryModule,
+	paths := config.NewConfigPaths(c.BACK, c.BACK)
+	cf := config.NewAppConfig(paths.Config)
+
+	publicKey, err := jwt.LoadPublicKey(
+		filepath.Join(paths.Root, cf.Certs.Public),
 	)
 
-	app.Run()
+	if err != nil {
+		log.Fatalf(jwt.ErrLoadingPublicKey, err.Error())
+	}
+
+	privateKey, err := jwt.LoadPrivateKey(
+		filepath.Join(paths.Root, cf.Certs.Private),
+	)
+
+	if err != nil {
+		log.Fatalf(jwt.ErrLoadingPublicKey, err.Error())
+	}
+
+	certs := jwt.Certs{
+		PrivateKey: privateKey,
+		PublicKey:  publicKey,
+	}
+
+	userList := users.LoadUsers(paths.Config)
+
+	server.NewGRPCServer(cf, certs, userList)
 }

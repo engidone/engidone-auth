@@ -19,3 +19,17 @@ SELECT code FROM recovery_codes WHERE code = $1 AND is_valid = TRUE AND expires_
 
 -- name: InsertRecoveryCode :one
 INSERT INTO recovery_codes (user_id, code, is_valid, expires_at) VALUES ($1, $2, $3, $4) RETURNING id, user_id, code, is_valid, expires_at, created_at;
+
+-- name: ExistsRefreshToken :one
+SELECT EXISTS(
+  SELECT 1
+  FROM refresh_tokens
+  WHERE user_id = $1 AND refresh_token = $2
+) AS exists;
+
+-- name: InsertOrUpdateRefreshToken :one
+INSERT INTO refresh_tokens (user_id, refresh_token)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET
+    refresh_token = EXCLUDED.refresh_token
+RETURNING *;

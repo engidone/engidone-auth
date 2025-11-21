@@ -6,23 +6,24 @@ import (
 	"os"
 	"time"
 
-	pb "engidoneauth/internal/hello/proto"
+	pb "engidoneauth/internal/proto"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
 	// Conectar al servidor gRPC
-	conn, err := grpc.NewClient("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("localhost:3000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("No se pudo conectar: %v", err)
 	}
 	defer conn.Close()
 
-	client := pb.NewHelloServiceClient(conn)
+	client := pb.NewAuthServiceClient(conn)
 
 	// Solicitar nombre si no se proporciona como argumento
-	name := "Mundo"
+	name := "Carlos wey"
 	if len(os.Args) > 1 {
 		name = os.Args[1]
 	}
@@ -36,7 +37,7 @@ func main() {
 		Name: name,
 	}
 
-	resp, err := client.Hello(ctx, req)
+	resp, err := client.SayHello(ctx, req)
 	if err != nil {
 		log.Fatalf("Error llamando al servicio Hello: %v", err)
 	}
@@ -45,6 +46,5 @@ func main() {
 	log.Printf("=== Respuesta del servicio Hello ===")
 	log.Printf("Nombre: %s", name)
 	log.Printf("Mensaje: %s", resp.Message)
-	log.Printf("Éxito: %t", resp.Success)
 	log.Printf("=====================================")
 }

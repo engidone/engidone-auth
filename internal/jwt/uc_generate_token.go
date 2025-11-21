@@ -1,23 +1,25 @@
 package jwt
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"engidoneauth/internal/apperror"
-	"fmt"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
-
 func (uc *UseCase) GenerateToken(userID string) (string, error) {
-	// Generate a random simple token
-	bytes := make([]byte, 32)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", apperror.New(ErrInvalidToken, "Error generando token")
+	claims := jwt.MapClaims{
+		"sub": userID,
+		"exp": time.Now().Add(time.Hour * 72).Unix(),
 	}
 
-	token := hex.EncodeToString(bytes)
-	fullToken := fmt.Sprintf("Bearer %s", token)
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
-	return fullToken, nil
+	tokenString, err := token.SignedString(uc.certs.PrivateKey)
+
+	if err != nil {
+		return "", apperror.New(ErrInvalidToken, "Error signin token")
+	}
+
+	return tokenString, nil
 }
-

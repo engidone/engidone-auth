@@ -20,8 +20,21 @@ CREATE TABLE recovery_codes (
   code TEXT NOT NULL UNIQUE,
   is_valid BOOLEAN NOT NULL DEFAULT TRUE,
   expires_at TIMESTAMPTZ NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Crear índice para user_id en recovery_codes
 CREATE INDEX idx_recovery_codes_user_id ON recovery_codes(user_id);
+
+
+CREATE TABLE refresh_tokens (
+  id SERIAL PRIMARY KEY,
+  user_id UUID NOT NULL UNIQUE,
+  refresh_token TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Crear índice para user_id en refresh_tokens
+CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);

@@ -1,7 +1,11 @@
 package users
 
 type User struct {
-	ID       int32  `yaml:"id"`
-	Username string `yaml:"username"`
-	Email    string `yaml:"email"`
+	ID       string `yaml:"id"`
+	Username string    `yaml:"username"`
+	Email    string    `yaml:"email"`
+}
+
+type UserConfig struct {
+	Users []User `yaml:"users"`
 }

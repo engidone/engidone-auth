@@ -25,4 +25,13 @@ type RecoveryCode struct {
 	IsValid   bool
 	ExpiresAt time.Time
 	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type RefreshToken struct {
+	ID           int32
+	UserID       uuid.UUID
+	RefreshToken string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

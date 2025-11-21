@@ -1,13 +1,12 @@
 package signin
 
 import (
-	"engidoneauth/internal/apperror"
 	"engidoneauth/log"
-	"engidoneauth/util/timing"
+	"fmt"
 )
 
 // Execute executes the authentication process
-func (uc *UseCase) SingIn(credentials Credentials) (*SigInResponse, error) {
+func (uc *UseCase) SingIn(credentials Credentials) (*Result, error) {
 	// Validate credentials
 	if err := uc.validateCredentials(credentials); err != nil {
 		return nil, err
@@ -25,15 +24,29 @@ func (uc *UseCase) SingIn(credentials Credentials) (*SigInResponse, error) {
 	// Generate token
 	token, err := uc.jwtUC.GenerateToken(user.ID)
 	if err != nil {
-		log.Error("Error generating token", log.Int32("user_id", user.ID), log.String("user_name", user.Username), log.Err(err))
-		return nil, apperror.New(ErrInvalidToken, "Error generating token")
+		log.Error("Error generating token", log.String("user_id", user.ID), log.String("user_name", user.Username), log.Err(err))
+		return nil, err
+	}
+
+	refreshToken, err := uc.jwtUC.GetRefreshToken()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.jwtUC.SyncRefreshToken(user.ID, refreshToken)
+
+	if err != nil {
+		return nil, err
 	}
 
 	// Create authentication response
-	response := &SigInResponse{
-		Token:     token,
-		ExpiresAt: timing.GetTokenExpiration(token),
+	result := &Result{
+		Token:        token,
+		RefreshToken: refreshToken,
 	}
 
-	return response, nil
+	fmt.Println("resut:: ", user)
+
+	return result, nil
 }

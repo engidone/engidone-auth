@@ -1,40 +1,81 @@
 package server
 
 import (
-	"context"
+	"engidoneauth/internal/app"
 	"engidoneauth/internal/config"
+	"engidoneauth/internal/credentials"
+	"engidoneauth/internal/db"
+	"engidoneauth/internal/greet"
+	"engidoneauth/internal/jwt"
 	pb "engidoneauth/internal/proto"
+	"engidoneauth/internal/signin"
+	"engidoneauth/internal/users"
+	"engidoneauth/log"
 	"fmt"
-	"log"
 	"net"
+	"time"
 
-	"go.uber.org/fx"
 	"google.golang.org/grpc"
 )
 
-func newGRPCServer(lc fx.Lifecycle, authSvr pb.AuthServiceServer, appConfig *config.AppConfig) *grpc.Server {
+type GRPCServer struct {
+	appConfig *config.AppConfig
+	certs     jwt.Certs
+	users     []users.User
+}
+
+func NewGRPCServer(appConfig *config.AppConfig, certs jwt.Certs, users []users.User) *GRPCServer {
+
+	s := &GRPCServer{
+		appConfig,
+		certs,
+		users,
+	}
+
 	grpcServer := grpc.NewServer()
-	pb.RegisterAuthServiceServer(grpcServer, authSvr)
 
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			lis, err := net.Listen("tcp", fmt.Sprintf(":%s", appConfig.Application.Port))
-			if err != nil {
-				return err
-			}
-			go func() {
-				log.Printf("gRPC server listening on :%s", appConfig.Application.Port)
-				if err := grpcServer.Serve(lis); err != nil {
-					log.Fatalf("Failed to serve: %v", err)
-				}
-			}()
-			return nil
-		},
-		OnStop: func(ctx context.Context) error {
-			grpcServer.GracefulStop()
-			return nil
-		},
-	})
+	greeModule := greetModule()
+	signinModule := s.signInModule(s.dbModule())
+	application := app.NewUseCase(greeModule, signinModule)
 
-	return grpcServer
+	pb.RegisterAuthServiceServer(grpcServer, application)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", appConfig.Application.Server.Port))
+	if err != nil {
+		panic(err)
+	}
+
+	log.Infof("gRPC server listening on :%s", appConfig.Application.Server.Port)
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
+
+	return s
+}
+
+func greetModule() *greet.UseCase {
+	return greet.NewUseCase(greet.NewGreetingRepository())
+}
+
+func (s *GRPCServer) jwtModule(dbModule *db.Queries) *jwt.UseCase {
+	repository := jwt.NewSQLRepository(dbModule)
+	return jwt.NewUseCase(60*time.Minute, s.certs, repository)
+}
+
+func credentialsModule(dbModule *db.Queries) *credentials.UseCase {
+	repository := credentials.NewSQLRepository(dbModule)
+	return credentials.NewUseCase(repository)
+}
+
+func (s *GRPCServer) usersModule() *users.UseCase {
+	repository := users.NewRPCUserServiceRepository(s.users)
+	return users.NewUseCase(repository)
+}
+
+func (s *GRPCServer) signInModule(dbModule *db.Queries) *signin.UseCase {
+	return signin.NewUseCase(s.jwtModule(dbModule), credentialsModule(dbModule), s.usersModule())
+}
+
+func (s *GRPCServer) dbModule() *db.Queries {
+	dbconn, _ := db.NewDBConnection(s.appConfig)
+	return db.New(dbconn)
 }

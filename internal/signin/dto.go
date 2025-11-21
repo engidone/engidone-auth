@@ -1,14 +1,11 @@
 package signin
 
-import "time"
-
 type Credentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string
+	Password string
 }
 
-
-type SigInResponse struct {
-	Token    string    `json:"token"`
-	ExpiresAt time.Time `json:"expires_at"`
+type Result struct {
+	Token        string
+	RefreshToken string
 }

@@ -12,6 +12,26 @@ import (
 	"github.com/google/uuid"
 )
 
+const existsRefreshToken = `-- name: ExistsRefreshToken :one
+SELECT EXISTS(
+  SELECT 1
+  FROM refresh_tokens
+  WHERE user_id = $1 AND refresh_token = $2
+) AS exists
+`
+
+type ExistsRefreshTokenParams struct {
+	UserID       uuid.UUID
+	RefreshToken string
+}
+
+func (q *Queries) ExistsRefreshToken(ctx context.Context, arg ExistsRefreshTokenParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, existsRefreshToken, arg.UserID, arg.RefreshToken)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const getCredential = `-- name: GetCredential :one
 SELECT id, user_id, password, created_at, updated_at FROM credentials WHERE user_id = $1 AND password = $2
 `
@@ -66,6 +86,32 @@ func (q *Queries) InsertCredential(ctx context.Context, arg InsertCredentialPara
 	return i, err
 }
 
+const insertOrUpdateRefreshToken = `-- name: InsertOrUpdateRefreshToken :one
+INSERT INTO refresh_tokens (user_id, refresh_token)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET
+    refresh_token = EXCLUDED.refresh_token
+RETURNING id, user_id, refresh_token, created_at, updated_at
+`
+
+type InsertOrUpdateRefreshTokenParams struct {
+	UserID       uuid.UUID
+	RefreshToken string
+}
+
+func (q *Queries) InsertOrUpdateRefreshToken(ctx context.Context, arg InsertOrUpdateRefreshTokenParams) (RefreshToken, error) {
+	row := q.db.QueryRowContext(ctx, insertOrUpdateRefreshToken, arg.UserID, arg.RefreshToken)
+	var i RefreshToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshToken,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const insertRecoveryCode = `-- name: InsertRecoveryCode :one
 INSERT INTO recovery_codes (user_id, code, is_valid, expires_at) VALUES ($1, $2, $3, $4) RETURNING id, user_id, code, is_valid, expires_at, created_at
 `
@@ -77,14 +123,23 @@ type InsertRecoveryCodeParams struct {
 	ExpiresAt time.Time
 }
 
-func (q *Queries) InsertRecoveryCode(ctx context.Context, arg InsertRecoveryCodeParams) (RecoveryCode, error) {
+type InsertRecoveryCodeRow struct {
+	ID        int32
+	UserID    uuid.UUID
+	Code      string
+	IsValid   bool
+	ExpiresAt time.Time
+	CreatedAt time.Time
+}
+
+func (q *Queries) InsertRecoveryCode(ctx context.Context, arg InsertRecoveryCodeParams) (InsertRecoveryCodeRow, error) {
 	row := q.db.QueryRowContext(ctx, insertRecoveryCode,
 		arg.UserID,
 		arg.Code,
 		arg.IsValid,
 		arg.ExpiresAt,
 	)
-	var i RecoveryCode
+	var i InsertRecoveryCodeRow
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,

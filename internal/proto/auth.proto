@@ -5,31 +5,9 @@ package proto;
 option go_package = "./";
 
 service AuthService {
-  rpc Signin(SigninRequest) returns (SignInResponse) {}
-  rpc RecoveryPassword(RecoveryPasswordRequest) returns (RecoveryPasswordResponse) {}
-  rpc Hello(HelloRequest) returns (HelloResponse) {}
-}
+  rpc SayHello(HelloRequest) returns (HelloResponse) {}
+  rpc SignIn(SignInRequest) returns (SignInResponse) {}
 
-// Mensajes para Signin
-message SigninRequest {
-  string username = 1;
-  string password = 2;
-}
-
-message SignInResponse {
-  bool success = 1;
-  string token = 2;
-  int64 expires_at = 3;
-}
-
-
-message RecoveryPasswordRequest {
-  string code = 1;
-}
-
-message RecoveryPasswordResponse {
-  bool success = 1;
-  string message = 2;
 }
 
 message HelloRequest {
@@ -38,4 +16,16 @@ message HelloRequest {
 
 message HelloResponse {
   string message = 1;
+}
+
+message SignInRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message SignInResponse {
+  bool success = 1;
+  string message = 2;
+	string Token  = 3;      
+	string refreshToken = 4;
 }

@@ -25,12 +25,14 @@ func LoadFile[T any](path string) (*T, error) {
 	return &config, nil
 }
 
-func newConfigPaths() Paths {
+func NewConfigPaths(levels ...string) Paths {
 
 	_, b, _, _ := runtime.Caller(0)
 
-	rootPath := filepath.Join(filepath.Dir(b), "../..")
+	args := append([]string{filepath.Dir(b)}, levels...)
+	rootPath := filepath.Join(args...)
 	return Paths{
 		Config: filepath.Join(rootPath, "cmd", "config"),
+		Root:   rootPath,
 	}
 }

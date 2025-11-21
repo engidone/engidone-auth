@@ -2,7 +2,7 @@ application:
   name: engidone-auth
   version: 1.0.0
   server:
-    port: 9000
+    port: 3000
 database:
   dsn: "{engine}://{user}:{password}@{host}:{port}/{db_name}?sslmode={ssl_mode}"
   engine: postgres
@@ -12,3 +12,6 @@ database:
   port: 5432
   ssl_mode: disable
   db_name: engidone_auth_db
+certs:
+  public: keys/public_key.pem
+  private: keys/private_key.pem

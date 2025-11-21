@@ -2,13 +2,11 @@ package credentials
 
 import (
 	"engidoneauth/internal/db"
-
-	"github.com/google/uuid"
 )
 
 type repository interface {
-	updatePassword(userID uuid.UUID, newPassword string) (bool, error)
-	findCredential(userID uuid.UUID, password string) (*db.Credential, error)
+	updatePassword(userID string, newPassword string) (bool, error)
+	findCredential(userID string, password string) (*db.Credential, error)
 }
 
 type UseCase struct {

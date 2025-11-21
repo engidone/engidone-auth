@@ -1,24 +1,33 @@
 package jwt
 
-import "time"
-
-func (uc *UseCase) RefreshToken(token string) (*TokenInfo, error) {
+func (uc *UseCase) RefreshToken(token, rfToken, userID string) (*TokenInfo, error) {
 	// Validate existing token
-	tokenInfo, err := uc.ValidateToken(token)
+	err := uc.ValidateToken(token)
+
 	if err != nil {
 		return nil, err
 	}
 
 	// Generate new token for the same user
-	newToken, err := uc.GenerateToken(tokenInfo.UserID)
+	newToken, err := uc.GenerateToken(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := uc.GetRefreshToken()
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = uc.repo.syncRefreshToken(userID, refreshToken)
+
 	if err != nil {
 		return nil, err
 	}
 
 	return &TokenInfo{
-		UserID:    tokenInfo.UserID,
-		Token:     newToken,
-		ExpiresAt: time.Now().Add(uc.tokenDuration),
-		IssuedAt:  time.Now(),
+		Token:        newToken,
+		RefreshToken: refreshToken,
 	}, nil
 }

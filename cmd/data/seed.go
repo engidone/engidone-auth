@@ -5,6 +5,7 @@ import (
 	"engidoneauth/internal/config"
 	"engidoneauth/log"
 	"engidoneauth/util/crypto"
+	"flag"
 	"fmt"
 	"os"
 	"path"
@@ -92,10 +93,104 @@ func openDb() (*sql.DB, error) {
 func getDirPath() string {
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
-		log.Fatal("No se pudo obtener la ruta del archivo")
+		log.Fatal("Could not get file path")
 	}
 
 	return filepath.Dir(filename)
+}
+
+func truncateTables(db *sql.DB, tableNames []string) {
+	fmt.Println("🧹 Iniciando truncado de tablas...")
+
+	for _, tableName := range tableNames {
+		// Desactivar restricciones de clave externa temporalmente
+		disableFKQuery := "SET session_replication_role = replica;"
+		_, err := db.Exec(disableFKQuery)
+		if err != nil {
+			log.Fatalf("Error desactivando restricciones de clave externa: %v", err)
+		}
+
+		// Contar registros antes de truncar
+		var count int
+		countQuery := fmt.Sprintf("SELECT COUNT(*) FROM %s", tableName)
+		err = db.QueryRow(countQuery).Scan(&count)
+		if err != nil {
+			fmt.Printf("⚠️  No se pudo contar registros en tabla %s: %v\n", tableName, err)
+		} else {
+			fmt.Printf("📊 Tabla %s: %d registros encontrados\n", tableName, count)
+		}
+
+		// Truncar tabla
+		truncateQuery := fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE", tableName)
+		_, err = db.Exec(truncateQuery)
+		if err != nil {
+			log.Fatalf("Error truncando tabla %s: %v", tableName, err)
+		}
+
+		fmt.Printf("✅ Tabla %s truncada exitosamente\n", tableName)
+	}
+
+	// Restaurar restricciones de clave externa
+	enableFKQuery := "SET session_replication_role = DEFAULT;"
+	_, err := db.Exec(enableFKQuery)
+	if err != nil {
+		log.Fatalf("Error restaurando restricciones de clave externa: %v", err)
+	}
+
+	fmt.Println("🎉 Truncado de tablas completado")
+}
+
+func getTableNamesFromFlags(tableFlag string) []string {
+	if tableFlag == "" {
+		return []string{}
+	}
+
+	// Split comma-separated table names and trim whitespace
+	tables := strings.Split(tableFlag, ",")
+	var result []string
+	for _, table := range tables {
+		trimmed := strings.TrimSpace(table)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+	return result
+}
+
+func shouldProcessTable(tableName string, specifiedTables []string) bool {
+	// If no tables specified, process all
+	if len(specifiedTables) == 0 {
+		return true
+	}
+
+	// Check if table name is in the specified list
+	for _, specified := range specifiedTables {
+		if strings.EqualFold(tableName, specified) {
+			return true
+		}
+	}
+	return false
+}
+
+func getAvailableTables(seedsDirPath string, entries []os.DirEntry) ([]string, error) {
+	var availableTables []string
+
+	for _, file := range entries {
+		data, err := os.ReadFile(path.Join(seedsDirPath, file.Name()))
+		if err != nil {
+			continue // Skip files that can't be read
+		}
+
+		var seedsData Seed
+		err = yaml.Unmarshal(data, &seedsData)
+		if err != nil {
+			continue // Skip invalid YAML files
+		}
+
+		availableTables = append(availableTables, seedsData.Name)
+	}
+
+	return availableTables, nil
 }
 
 func getFieldsAndSecuences(data SeedItems) (string, string) {
@@ -134,6 +229,11 @@ func getFieldsAndSecuences(data SeedItems) (string, string) {
 }
 
 func main() {
+	// Parse command line flags
+	truncateFlag := flag.Bool("truncate", false, "Truncate tables before seeding data")
+	tableFlag := flag.String("table", "", "Specify which table(s) to seed (comma-separated). If not specified, all tables will be processed")
+	flag.Parse()
+
 	dirPath := getDirPath()
 	seedsDirPath := path.Join(dirPath, "seeds")
 	entries, err := os.ReadDir(seedsDirPath)
@@ -143,6 +243,58 @@ func main() {
 	}
 
 	db, _ := openDb()
+
+	// Get specified tables from flag
+	specifiedTables := getTableNamesFromFlags(*tableFlag)
+
+	// Get available tables from seed files
+	availableTables, err := getAvailableTables(seedsDirPath, entries)
+	if err != nil {
+		log.Fatalf("Error getting available tables: %v", err)
+	}
+
+	// Validate specified tables if any were provided
+	if len(specifiedTables) > 0 {
+		fmt.Printf("🎯 Tablas especificadas: %v\n", specifiedTables)
+
+		// Check if specified tables exist
+		var invalidTables []string
+		for _, specified := range specifiedTables {
+			found := false
+			for _, available := range availableTables {
+				if strings.EqualFold(specified, available) {
+					found = true
+					break
+				}
+			}
+			if !found {
+				invalidTables = append(invalidTables, specified)
+			}
+		}
+
+		if len(invalidTables) > 0 {
+			fmt.Printf("⚠️  Tablas no encontradas: %v\n", invalidTables)
+			fmt.Printf("📋 Tablas disponibles: %v\n\n", availableTables)
+			log.Fatalf("Por favor, especifica solo tablas válidas")
+		}
+	} else {
+		fmt.Println("📋 No se especificaron tablas. Se procesarán todas las tablas disponibles.")
+	}
+
+	// If truncate flag is set, collect table names and truncate them
+	if *truncateFlag {
+		if len(specifiedTables) > 0 {
+			fmt.Printf("🚀 Flag --truncate detectado. Se truncarán solo las tablas especificadas.\n")
+			truncateTables(db, specifiedTables)
+		} else {
+			fmt.Printf("🚀 Flag --truncate detectado. Se truncarán todas las tablas.\n")
+			truncateTables(db, availableTables)
+		}
+		fmt.Println("")
+	}
+
+	processedCount := 0
+	skippedCount := 0
 
 	for _, file := range entries {
 		data, err := os.ReadFile(path.Join(seedsDirPath, file.Name()))
@@ -156,6 +308,15 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error unmarshal %s: %s", file.Name(), err.Error())
 		}
+
+		// Check if this table should be processed
+		if !shouldProcessTable(seedsData.Name, specifiedTables) {
+			skippedCount++
+			fmt.Printf("⏭️  Omitiendo tabla: %s (no especificada)\n", seedsData.Name)
+			continue
+		}
+
+		processedCount++
 		fields, secuences := getFieldsAndSecuences(seedsData.Items)
 		fieldOrder := strings.Split(fields, ", ")
 		sentence := "INSERT INTO {tablename} ({fields}) VALUES({secuences})"
@@ -249,4 +410,19 @@ func main() {
 		fmt.Printf("✅ Total insertado: %d registros\n\n", totalInserted)
 
 	}
+
+	// Print summary
+	fmt.Println(strings.Repeat("=", 50))
+	fmt.Printf("📊 RESUMEN DE EJECUCIÓN:\n")
+	fmt.Printf("📁 Archivos procesados: %d\n", processedCount)
+	if skippedCount > 0 {
+		fmt.Printf("⏭️  Archivos omitidos: %d\n", skippedCount)
+	}
+	fmt.Printf("🎯 Tablas objetivo: %v\n", func() []string {
+		if len(specifiedTables) > 0 {
+			return specifiedTables
+		}
+		return availableTables
+	}())
+	fmt.Println(strings.Repeat("=", 50))
 }

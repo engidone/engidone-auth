@@ -1,9 +1,11 @@
 package greet
 
-import "engidoneauth/internal/apperror"
+import (
+	"engidoneauth/internal/apperror"
+)
 
 // Execute executes the hello use case
-func (uc *UseCase) Execute(name string) (*HelloResponse, error) {
+func (uc *UseCase) SayHello(name string) (*HelloResponse, error) {
 	if name == "" {
 		return &HelloResponse{
 			Message: "Por favor, proporciona un nombre",
