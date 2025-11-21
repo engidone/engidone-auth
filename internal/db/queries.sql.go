@@ -12,26 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const existsRefreshToken = `-- name: ExistsRefreshToken :one
-SELECT EXISTS(
-  SELECT 1
-  FROM refresh_tokens
-  WHERE user_id = $1 AND refresh_token = $2
-) AS exists
-`
-
-type ExistsRefreshTokenParams struct {
-	UserID       uuid.UUID
-	RefreshToken string
-}
-
-func (q *Queries) ExistsRefreshToken(ctx context.Context, arg ExistsRefreshTokenParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, existsRefreshToken, arg.UserID, arg.RefreshToken)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
 const getCredential = `-- name: GetCredential :one
 SELECT id, user_id, password, created_at, updated_at FROM credentials WHERE user_id = $1 AND password = $2
 `
@@ -62,6 +42,19 @@ func (q *Queries) GetRecoveryCode(ctx context.Context, code string) (string, err
 	row := q.db.QueryRowContext(ctx, getRecoveryCode, code)
 	err := row.Scan(&code)
 	return code, err
+}
+
+const getUserByRefreshToken = `-- name: GetUserByRefreshToken :one
+SELECT user_id
+  FROM refresh_tokens
+  WHERE refresh_token = $1
+`
+
+func (q *Queries) GetUserByRefreshToken(ctx context.Context, refreshToken string) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getUserByRefreshToken, refreshToken)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
 }
 
 const insertCredential = `-- name: InsertCredential :one

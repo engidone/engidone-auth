@@ -33,10 +33,11 @@ func NewGRPCServer(appConfig *config.AppConfig, certs jwt.Certs, users []users.U
 	}
 
 	grpcServer := grpc.NewServer()
-
+	dbModule := s.dbModule()
 	greeModule := greetModule()
-	signinModule := s.signInModule(s.dbModule())
-	application := app.NewUseCase(greeModule, signinModule)
+	signinModule := s.signInModule(dbModule)
+	jwtModule := s.jwtModule(dbModule)
+	application := app.NewUseCase(greeModule, signinModule, jwtModule)
 
 	pb.RegisterAuthServiceServer(grpcServer, application)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", appConfig.Application.Server.Port))

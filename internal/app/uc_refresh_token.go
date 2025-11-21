@@ -3,24 +3,22 @@ package app
 import (
 	"context"
 	pb "engidoneauth/internal/proto"
-	"engidoneauth/internal/signin"
 )
 
-func (appUC *AppUseCase) RefreshToken(ctx context.Context, req *pb.SignInRequest) (*pb.SignInResponse, error) {
-	singInRes, err := appUC.signInUC.SingIn(signin.Credentials{
-		Username: req.Username,
-		Password: req.Password,
-	})
+func (appUC *AppUseCase) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
+	singInRes, err := appUC.jwtUC.RefreshToken(req.Token, req.RefreshToken)
 
 	if err != nil {
-		return &pb.SignInResponse{
-			Message:      "Opps " + err.Error(),
-			Token:        "Yuca",
-			RefreshToken: "Yuca",
+		return &pb.RefreshTokenResponse{
+			Success:      true,
+			Message:      "Error: " + err.Error(),
+			Token:        "",
+			RefreshToken: "",
 		}, nil
 	}
-	return &pb.SignInResponse{
-		Message:      "Welcome " + req.Username,
+	return &pb.RefreshTokenResponse{
+		Success:      false,
+		Message:      "Session updated",
 		Token:        singInRes.Token,
 		RefreshToken: singInRes.RefreshToken,
 	}, nil

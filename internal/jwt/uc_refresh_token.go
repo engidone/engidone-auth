@@ -1,11 +1,19 @@
 package jwt
 
-func (uc *UseCase) RefreshToken(token, rfToken, userID string) (*TokenInfo, error) {
+import "engidoneauth/internal/apperror"
+
+func (uc *UseCase) RefreshToken(token, rfToken string) (*TokenInfo, error) {
 	// Validate existing token
 	err := uc.ValidateToken(token)
 
 	if err != nil {
 		return nil, err
+	}
+
+	userID, err := uc.repo.getUserByRefreshToken(rfToken)
+
+	if err != nil {
+		return nil, apperror.New(ErrInvalidRefreshToken, "Could not renew your session")
 	}
 
 	// Generate new token for the same user

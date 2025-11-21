@@ -20,12 +20,10 @@ SELECT code FROM recovery_codes WHERE code = $1 AND is_valid = TRUE AND expires_
 -- name: InsertRecoveryCode :one
 INSERT INTO recovery_codes (user_id, code, is_valid, expires_at) VALUES ($1, $2, $3, $4) RETURNING id, user_id, code, is_valid, expires_at, created_at;
 
--- name: ExistsRefreshToken :one
-SELECT EXISTS(
-  SELECT 1
+-- name: GetUserByRefreshToken :one
+SELECT user_id
   FROM refresh_tokens
-  WHERE user_id = $1 AND refresh_token = $2
-) AS exists;
+  WHERE refresh_token = $1;
 
 -- name: InsertOrUpdateRefreshToken :one
 INSERT INTO refresh_tokens (user_id, refresh_token)

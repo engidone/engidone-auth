@@ -6,8 +6,8 @@ import (
 )
 
 type repository interface {
-	existsRefreshToken(userID, refreshToken string) (bool, error)
 	syncRefreshToken(userID, refreshToken string) (*db.RefreshToken, error)
+	getUserByRefreshToken(refreshToken string) (string, error)
 }
 
 type UseCase struct {
