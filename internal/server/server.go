@@ -5,7 +5,6 @@ import (
 	"engidoneauth/internal/config"
 	"engidoneauth/internal/credentials"
 	"engidoneauth/internal/db"
-	"engidoneauth/internal/greet"
 	"engidoneauth/internal/jwt"
 	pb "engidoneauth/internal/proto"
 	"engidoneauth/internal/signin"
@@ -34,10 +33,9 @@ func NewGRPCServer(appConfig *config.AppConfig, certs jwt.Certs, users []users.U
 
 	grpcServer := grpc.NewServer()
 	dbModule := s.dbModule()
-	greeModule := greetModule()
 	signinModule := s.signInModule(dbModule)
 	jwtModule := s.jwtModule(dbModule)
-	application := app.NewUseCase(greeModule, signinModule, jwtModule)
+	application := app.NewUseCase(signinModule, jwtModule)
 
 	pb.RegisterAuthServiceServer(grpcServer, application)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", appConfig.Application.Server.Port))
@@ -51,10 +49,6 @@ func NewGRPCServer(appConfig *config.AppConfig, certs jwt.Certs, users []users.U
 	}
 
 	return s
-}
-
-func greetModule() *greet.UseCase {
-	return greet.NewUseCase(greet.NewGreetingRepository())
 }
 
 func (s *GRPCServer) jwtModule(dbModule *db.Queries) *jwt.UseCase {

@@ -3,12 +3,11 @@ package credentials
 import (
 	"context"
 	"database/sql"
-	"engidoneauth/internal/apperror"
 	"engidoneauth/internal/db"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/samber/oops"
 )
 
 func (rp sqlRepository) updatePassword(userID string, newPassword string) (bool, error) {
@@ -24,9 +23,13 @@ func (rp sqlRepository) updatePassword(userID string, newPassword string) (bool,
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return false, apperror.New(ErrUserNotFound, "Usuario no encontrado")
+			return false, oops.
+				With("user_id", userID).
+				Wrap(UserNotFound)
 		}
-		return false, apperror.New(ErrInternalError, fmt.Sprintf("Error actualizando usuario: %v", err))
+		return false, oops.
+			With("user_id", userID).
+			Wrap(InternalError)
 	}
 
 	return true, nil

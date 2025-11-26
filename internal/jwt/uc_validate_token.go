@@ -1,8 +1,7 @@
 package jwt
 
 import (
-	"engidoneauth/internal/apperror"
-
+	"github.com/samber/oops"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -12,12 +11,12 @@ func (uc *UseCase) ValidateToken(tokenInput string) error {
 	})
 
 	if err != nil {
-		return apperror.New(ErrParsingToken, err.Error())
+		return oops.With("token", tokenInput).Wrapf(ParsingToken, "Failed to parse JWT token: %v", err)
 	}
 
 	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return nil
 	} else {
-		return apperror.New(ErrInvalidToken, "Token invalid or expired")
+		return oops.With("token", tokenInput).Wrap(InvalidToken)
 	}
 }

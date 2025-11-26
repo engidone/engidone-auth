@@ -3,27 +3,30 @@ package recovery
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
-	"engidoneauth/internal/apperror"
+	"github.com/samber/oops"
 )
 
-
-
+// findRecoveryCode remains for backward compatibility but delegates to validateRecoveryCode
 func (rp *sqlRepository) findRecoveryCode(code string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	recoveryCode, err := rp.dbq.GetRecoveryCode(ctx, code)
-	
+	storedCode, err := rp.dbq.GetRecoveryCode(ctx, code)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return "", apperror.New(ErrInvalidRecoveryCode, "Recovery code not found")
+			return "", RecoveryCodeNotFound
 		}
-		return "", apperror.New(ErrInternalError, fmt.Sprintf("Error finding recovery: %v", err))
+
+		// Check for context timeout
+		if ctx.Err() == context.DeadlineExceeded {
+			return "", TimeoutError
+		}
+
+		return "", oops.With("error", err.Error()).Wrap(DatabaseError)
 	}
 
-	return recoveryCode, nil
-
+	return storedCode, nil
 }

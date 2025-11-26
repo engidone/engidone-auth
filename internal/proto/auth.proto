@@ -5,18 +5,9 @@ package proto;
 option go_package = "./";
 
 service AuthService {
-  rpc SayHello(HelloRequest) returns (HelloResponse) {}
   rpc SignIn(SignInRequest) returns (SignInResponse) {}
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {}
 
-}
-
-message HelloRequest {
-  string name = 1;
-}
-
-message HelloResponse {
-  string message = 1;
 }
 
 message SignInRequest {
@@ -25,20 +16,16 @@ message SignInRequest {
 }
 
 message SignInResponse {
-  bool success = 1;
-  string message = 2;
-	string Token  = 3;      
-	string refreshToken = 4;
+	string token  = 1;
+	string refresh_token = 2;
 }
 
 message RefreshTokenRequest {
-  string refreshToken = 1;
-  string token = 2;
+  string token = 1;
+  string refreshToken = 2;
 }
 
 message RefreshTokenResponse {
-  bool success = 1;
-  string message = 2;
-	string Token  = 3;      
-	string refreshToken = 4;
+	string token  = 1;
+	string refresh_token = 2;
 }

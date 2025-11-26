@@ -1,6 +1,5 @@
 package recovery
 
-
 type repository interface {
 	findRecoveryCode(code string) (string, error)
 }
@@ -14,4 +13,3 @@ func NewUseCase(recoveryRepository repository) *UseCase {
 		repo: recoveryRepository,
 	}
 }
-

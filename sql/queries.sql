@@ -15,7 +15,7 @@ SET password = $1, updated_at = CURRENT_TIMESTAMP
 WHERE user_id = $2;
 
 -- name: GetRecoveryCode :one
-SELECT code FROM recovery_codes WHERE code = $1 AND is_valid = TRUE AND expires_at <= CURRENT_TIMESTAMP;
+SELECT code FROM recovery_codes WHERE code = $1 AND is_valid = TRUE AND expires_at >= CURRENT_TIMESTAMP;
 
 -- name: InsertRecoveryCode :one
 INSERT INTO recovery_codes (user_id, code, is_valid, expires_at) VALUES ($1, $2, $3, $4) RETURNING id, user_id, code, is_valid, expires_at, created_at;

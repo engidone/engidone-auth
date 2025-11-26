@@ -3,7 +3,7 @@ package jwt
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"engidoneauth/internal/apperror"
+	"github.com/samber/oops"
 )
 
 func (uc *UseCase) GetRefreshToken() (string, error) {
@@ -11,7 +11,7 @@ func (uc *UseCase) GetRefreshToken() (string, error) {
 	_, err := rand.Read(b)
 
 	if err != nil {
-		return "", apperror.New(ErrGeneratingRefreshToken, err.Error())
+		return "", oops.Wrapf(GeneratingRefreshToken, "Failed to generate random bytes: %v", err)
 	}
 
 	return base64.RawURLEncoding.EncodeToString(b), nil
