@@ -21,7 +21,7 @@ func main() {
 	service := os.Args[1]
 
 	// Connect to server
-	conn, err := grpc.NewClient("localhost:3000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("localhost:8000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
@@ -36,6 +36,8 @@ func main() {
 		signIn(client, ctx, func(err error) {})
 	case "refresh":
 		refreshToken(client, ctx, func(err error) {})
+	case "hello":
+		hello(client, ctx, func(err error) {})
 	default:
 		log.Fatalf("Invalid service: %s. Use 'signin' or 'refresh'", service)
 	}

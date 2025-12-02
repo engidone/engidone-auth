@@ -7,7 +7,7 @@ option go_package = "./";
 service AuthService {
   rpc SignIn(SignInRequest) returns (SignInResponse) {}
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {}
-
+  rpc Hello (HelloRequest) returns (HelloResponse) {}
 }
 
 message SignInRequest {
@@ -17,7 +17,7 @@ message SignInRequest {
 
 message SignInResponse {
 	string token  = 1;
-	string refresh_token = 2;
+	string refreshToken = 2;
 }
 
 message RefreshTokenRequest {
@@ -27,5 +27,14 @@ message RefreshTokenRequest {
 
 message RefreshTokenResponse {
 	string token  = 1;
-	string refresh_token = 2;
+	string refreshToken = 2;
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string name = 1;
+  string message = 2;
 }

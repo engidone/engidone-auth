@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  engidone_auth-db:
+    image: postgres:18
+    container_name: engidoneauth-db
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/db_name       # Archivo con el nombre de la base de datos
+      POSTGRES_USER_FILE: /run/secrets/db_user     # Archivo con el usuario
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_name
+      - db_user
+      - db_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - engidone-auth_net 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $(cat /run/secrets/db_user) -d $(cat /run/secrets/db_name) || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s  
+
+  engidoneauth:
+    depends_on:
+      engidone_auth-db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    environment:
+      DB_NAME_FILE: /run/secrets/db_name
+      DB_USER_FILE: /run/secrets/db_user
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      DB_HOST: engidone_auth-db
+      DB_PORT: 5432
+    secrets:
+      - db_name
+      - db_user
+      - db_password
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    networks:
+      - engidone-auth_net
+      - engidone
+
+volumes:
+  postgres_data:
+
+secrets:
+  db_name:
+    file: ~/.secrets/db_name.txt
+  db_user:
+    file: ~/.secrets/db_user.txt
+  db_password:
+    file: ~/.secrets/db_password.txt
+
+networks:
+  engidone-auth_net: # internal
+    driver: bridge
+  engidone: # external
+    driver: bridge

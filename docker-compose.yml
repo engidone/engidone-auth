@@ -1,30 +1,51 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: engidoneauth-postgres
+  engidone_auth-db:
+    image: postgres:18
+    container_name: engidoneauth-db
     environment:
-      POSTGRES_DB: engidone_auth
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: engidone_password
+      POSTGRES_DB: ${DB_NAME}        
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}  
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - engidone-auth_net 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d engidone_auth"]
-      timeout: 20s
-      retries: 10
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s  
 
   engidoneauth:
-    build: .
-    ports:
-      - "9000:9000"
     depends_on:
-      postgres:
+      engidone_auth-db:
         condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: engidone_auth-db
+      DB_PORT: 5432
+    ports:
+      - "3001:3001"
     restart: unless-stopped
+    networks:
+      - engidone-auth_net
+      - engidone
 
 volumes:
   postgres_data:
+  
+networks:
+  engidone-auth_net: # internal
+    driver: bridge
+  engidone: # external
+    driver: bridge
