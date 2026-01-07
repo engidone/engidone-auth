@@ -16,7 +16,7 @@ Servicio de autenticación microservicio construido con **Go** y **gRPC**, imple
 ## 📁 Estructura del Proyecto
 
 ```
-engidone-auth/
+engidoneauth/
 ├── internal/
 │   ├── di/                      # 🔥 Dependency Injection con fx
 │   │   ├── app_providers.go     # Providers de aplicación (logger, config)
@@ -91,24 +91,24 @@ go build -o bin/server ./cmd/server
 
 **Salida esperada con fx:**
 ```
-[Fx] PROVIDE  *zap.Logger <= engidone-auth/internal/di.NewZapLogger()
-[Fx] PROVIDE  log.Logger <= engidone-auth/internal/di.NewGoKitLogger()
-[Fx] PROVIDE  *di.AppConfig <= engidone-auth/internal/di.NewAppConfig()
-[Fx] PROVIDE  domain.HelloService <= engidone-auth/internal/di.NewHelloService()
-[Fx] PROVIDE  domain.HelloUseCase <= engidone-auth/internal/di.NewHelloUseCase()
-[Fx] PROVIDE  domain.UserRepository <= engidone-auth/internal/di.NewUserRepository()
-[Fx] PROVIDE  domain.TokenService <= engidone-auth/internal/di.NewTokenService()
-[Fx] PROVIDE  domain.SigninUseCase <= engidone-auth/internal/di.NewSigninUseCase()
-[Fx] PROVIDE  domain.ValidateTokenUseCase <= engidone-auth/internal/di.NewValidateTokenUseCase()
-[Fx] PROVIDE  domain.RefreshTokenUseCase <= engidone-auth/internal/di.NewRefreshTokenUseCase()
-[Fx] PROVIDE  domain.GetUserUseCase <= engidone-auth/internal/di.NewGetUserUseCase()
-[Fx] PROVIDE  *grpc.Server <= engidone-auth/internal/di.NewGRPCServer()
-[Fx] PROVIDE  endpoints.Set <= engidone-auth/internal/di.NewHelloEndpoints()
-[Fx] PROVIDE  endpoints.Set <= engidone-auth/internal/di.NewSigninEndpoints()
-[Fx] PROVIDE  proto.HelloServiceServer <= engidone-auth/internal/di.NewHelloGRPCServer()
-[Fx] PROVIDE  proto.SigninServiceServer <= engidone-auth/internal/di.NewSigninGRPCServer()
-[Fx] PROVIDE  net.Listener <= engidone-auth/internal/di.NewTCPListener()
-[Fx] INVOKE   engidone-auth/internal/di.RegisterGRPCServices()
+[Fx] PROVIDE  *zap.Logger <= engidoneauth/internal/di.NewZapLogger()
+[Fx] PROVIDE  log.Logger <= engidoneauth/internal/di.NewGoKitLogger()
+[Fx] PROVIDE  *di.AppConfig <= engidoneauth/internal/di.NewAppConfig()
+[Fx] PROVIDE  domain.HelloService <= engidoneauth/internal/di.NewHelloService()
+[Fx] PROVIDE  domain.HelloUseCase <= engidoneauth/internal/di.NewHelloUseCase()
+[Fx] PROVIDE  domain.UserRepository <= engidoneauth/internal/di.NewUserRepository()
+[Fx] PROVIDE  domain.TokenService <= engidoneauth/internal/di.NewTokenService()
+[Fx] PROVIDE  domain.SigninUseCase <= engidoneauth/internal/di.NewSigninUseCase()
+[Fx] PROVIDE  domain.ValidateTokenUseCase <= engidoneauth/internal/di.NewValidateTokenUseCase()
+[Fx] PROVIDE  domain.RefreshTokenUseCase <= engidoneauth/internal/di.NewRefreshTokenUseCase()
+[Fx] PROVIDE  domain.GetUserUseCase <= engidoneauth/internal/di.NewGetUserUseCase()
+[Fx] PROVIDE  *grpc.Server <= engidoneauth/internal/di.NewGRPCServer()
+[Fx] PROVIDE  endpoints.Set <= engidoneauth/internal/di.NewHelloEndpoints()
+[Fx] PROVIDE  endpoints.Set <= engidoneauth/internal/di.NewSigninEndpoints()
+[Fx] PROVIDE  proto.HelloServiceServer <= engidoneauth/internal/di.NewHelloGRPCServer()
+[Fx] PROVIDE  proto.SigninServiceServer <= engidoneauth/internal/di.NewSigninGRPCServer()
+[Fx] PROVIDE  net.Listener <= engidoneauth/internal/di.NewTCPListener()
+[Fx] INVOKE   engidoneauth/internal/di.RegisterGRPCServices()
 
 msg==== Engidone Auth Service ===
 transport=gRPC addr=:9000
@@ -234,9 +234,78 @@ message GetUserResponse {
 - **gRPC**: Comunicación via Protocol Buffers
 - **Go-Kit**: Estructura de microservicios
 - **Clean Architecture**: Separación de capas
+- **SQLC**: Type-safe SQL queries
+- **MySQL**: Base de datos relacional
+- **YAML Seeders**: Sistema de datos iniciales basado en YAML
 - **Zap**: Logger estructurado
 
 ## 🔧 Desarrollo
+
+### 🌱 YAML Seeders
+
+El sistema incluye un potente sistema de seeders basado en YAML para poblar la base de datos con datos iniciales:
+
+#### **Estructura de Seeders:**
+```
+internal/database/seeders/
+├── seeders.yml           # Configuración principal
+├── users/                # Seeders de usuarios
+│   ├── seeder.yml       # Configuración del seeder
+│   └── data.yml         # Datos en YAML
+└── models.go             # Modelos y interfaces
+```
+
+#### **Configuración Principal (seeders.yml):**
+```yaml
+enabled: true
+seeders:
+  - name: users
+    enabled: true
+    order: 1
+    depends: []
+    description: "Seed default users for testing"
+```
+
+#### **Datos de Usuario (users/data.yml):**
+```yaml
+users:
+  - username: admin
+    email: admin@example.com
+    password: admin123
+    roles: ["admin", "superuser"]
+    active: true
+    metadata:
+      first_name: "Administrator"
+      last_name: "User"
+      created_at: "2024-01-01T00:00:00Z"
+```
+
+#### **Comandos de Seeders:**
+```bash
+# Ejecutar migraciones y seeders
+make run-seed
+
+# Probar seeders
+make test-seeders
+
+# Generar SQLC code
+make sqlc
+
+# Configuración inicial
+make dev-setup
+```
+
+#### **Usuarios Predefinidos:**
+| Username | Password | Roles | Estado |
+|----------|----------|-------|--------|
+| admin | admin123 | admin, superuser | ✅ Activo |
+| testuser | test123 | user | ✅ Activo |
+| john | john123 | user | ✅ Activo |
+| jane | jane123 | user, moderator | ✅ Activo |
+| developer | dev123 | user, developer | ✅ Activo |
+| alice | alice123 | user | ✅ Activo |
+| bob | bob123 | user | ❌ Inactivo |
+| charlie | charlie123 | user, moderator | ✅ Activo |
 
 ### Agregar Nuevo Servicio
 
@@ -312,20 +381,20 @@ CMD ["./server"]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: engidone-auth
+  name: engidoneauth
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: engidone-auth
+      app: engidoneauth
   template:
     metadata:
       labels:
-        app: engidone-auth
+        app: engidoneauth
     spec:
       containers:
       - name: auth
-        image: engidone-auth:latest
+        image: engidoneauth:latest
         ports:
         - containerPort: 9000
         env:

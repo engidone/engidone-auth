@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./";
+
+service AuthService {
+  rpc SignIn(SignInRequest) returns (SignInResponse) {}
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {}
+  rpc Hello (HelloRequest) returns (HelloResponse) {}
+}
+
+message SignInRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message SignInResponse {
+	string token  = 1;
+	string refreshToken = 2;
+}
+
+message RefreshTokenRequest {
+  string token = 1;
+  string refreshToken = 2;
+}
+
+message RefreshTokenResponse {
+	string token  = 1;
+	string refreshToken = 2;
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string name = 1;
+  string message = 2;
+}
