@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   engidone_auth-db:
-    image: postgres:18
+    image: postgres:17
     container_name: engidoneauth-db
     environment:
       POSTGRES_DB: ${DB_NAME}        
@@ -27,13 +25,13 @@ services:
         condition: service_healthy
     build:
       context: .
-      dockerfile: Dockerfile.development
+      dockerfile: Dockerfile
     environment:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
-      DB_HOST: engidone_auth-db
-      DB_PORT: 5432
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
     ports:
       - "3001:3001"
     restart: unless-stopped

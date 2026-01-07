@@ -1,18 +1,20 @@
 package main
 
 import (
-	c "engidoneauth/common"
 	"engidoneauth/internal/config"
 	"engidoneauth/internal/jwt"
 	"engidoneauth/internal/server"
 	"engidoneauth/internal/users"
 
-	"engidoneauth/log"
+	"github.com/engidone/go-utils/common"
+
 	"path/filepath"
+
+	"github.com/engidone/go-utils/log"
 )
 
 func main() {
-	paths := config.NewConfigPaths(c.BACK, c.BACK)
+	paths := common.NewConfigPaths("cmd/config")
 	cf := config.NewAppConfig(paths.Config)
 
 	publicKey, err := jwt.LoadPublicKey(

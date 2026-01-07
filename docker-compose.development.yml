@@ -5,13 +5,11 @@ services:
     image: postgres:18
     container_name: engidoneauth-db
     environment:
-      POSTGRES_DB_FILE: /run/secrets/db_name       # Archivo con el nombre de la base de datos
-      POSTGRES_USER_FILE: /run/secrets/db_user     # Archivo con el usuario
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-    secrets:
-      - db_name
-      - db_user
-      - db_password
+      DB_NAME_FILE: ${DB_NAME_FILE}
+      DB_USER_FILE: ${DB_USER_FILE}
+      DB_PASSWORD_FILE: ${DB_PASSWORD_FILE}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
     ports:
       - "5432:5432"
     volumes:
@@ -33,15 +31,11 @@ services:
       context: .
       dockerfile: Dockerfile.development
     environment:
-      DB_NAME_FILE: /run/secrets/db_name
-      DB_USER_FILE: /run/secrets/db_user
-      DB_PASSWORD_FILE: /run/secrets/db_password
-      DB_HOST: engidone_auth-db
-      DB_PORT: 5432
-    secrets:
-      - db_name
-      - db_user
-      - db_password
+      DB_NAME_FILE: ${DB_NAME_FILE}
+      DB_USER_FILE: ${DB_USER_FILE}
+      DB_PASSWORD_FILE: ${DB_PASSWORD_FILE}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
     ports:
       - "3001:3001"
     restart: unless-stopped
@@ -51,14 +45,6 @@ services:
 
 volumes:
   postgres_data:
-
-secrets:
-  db_name:
-    file: ~/.secrets/db_name.txt
-  db_user:
-    file: ~/.secrets/db_user.txt
-  db_password:
-    file: ~/.secrets/db_password.txt
 
 networks:
   engidone-auth_net: # internal

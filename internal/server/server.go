@@ -9,10 +9,11 @@ import (
 	pb "engidoneauth/internal/proto"
 	"engidoneauth/internal/signin"
 	"engidoneauth/internal/users"
-	"engidoneauth/log"
 	"fmt"
 	"net"
 	"time"
+
+	"github.com/engidone/go-utils/log"
 
 	"google.golang.org/grpc"
 )

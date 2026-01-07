@@ -1,8 +1,9 @@
 package signin
 
 import (
-	"engidoneauth/log"
 	"fmt"
+
+	"github.com/engidone/go-utils/log"
 )
 
 // Execute executes the authentication process

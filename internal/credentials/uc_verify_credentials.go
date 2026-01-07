@@ -1,7 +1,7 @@
 package credentials
 
 import (
-	"engidoneauth/util/crypto"
+	"github.com/engidone/go-utils/crypto"
 	"github.com/samber/oops"
 )
 

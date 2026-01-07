@@ -1,8 +1,9 @@
 package recovery
 
 import (
-	"engidoneauth/log"
+	"github.com/engidone/go-utils/log"
 )
+
 func (uc *UseCase) ValidateToken(code string) (*ValidateResponse, error) {
 	recoveryCode, err := uc.repo.findRecoveryCode(code)
 	if err != nil {

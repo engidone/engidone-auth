@@ -1,7 +1,7 @@
 package users
 
 import (
-	"engidoneauth/util/collection"
+	"github.com/engidone/go-utils/collection"
 	"github.com/samber/oops"
 )
 

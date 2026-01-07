@@ -3,8 +3,9 @@ package jwt
 import (
 	"context"
 	"engidoneauth/internal/db"
-	"engidoneauth/log"
 	"time"
+
+	"github.com/engidone/go-utils/log"
 	"github.com/google/uuid"
 	"github.com/samber/oops"
 )
