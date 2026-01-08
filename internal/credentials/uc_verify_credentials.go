@@ -11,7 +11,9 @@ func (uc *UseCase) VerifyCredentials(userID string, password string) (bool, erro
 
 	storedUser, err := uc.repo.findCredential(userID, hashedPassword)
 	if err != nil {
-		return false, err
+		return false, oops.
+			With("user_id", userID).
+			Wrap(InvalidCredentials)
 	}
 
 	if storedUser == nil || storedUser.UserID.String() != userID {

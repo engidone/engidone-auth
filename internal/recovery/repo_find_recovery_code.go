@@ -20,12 +20,7 @@ func (rp *sqlRepository) findRecoveryCode(code string) (string, error) {
 			return "", RecoveryCodeNotFound
 		}
 
-		// Check for context timeout
-		if ctx.Err() == context.DeadlineExceeded {
-			return "", TimeoutError
-		}
-
-		return "", oops.With("error", err.Error()).Wrap(DatabaseError)
+		return "", oops.With("error", err.Error()).Wrap(InternalError)
 	}
 
 	return storedCode, nil

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -20,11 +21,12 @@ func main() {
 
 	service := os.Args[1]
 
-	// Connect to server
-	conn, err := grpc.NewClient("localhost:8000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("localhost:3001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
+
 	defer conn.Close()
 
 	client := pb.NewAuthServiceClient(conn)
@@ -33,9 +35,9 @@ func main() {
 
 	switch service {
 	case "signin":
-		signIn(client, ctx, func(err error) {})
+		signIn(client, ctx, func(err error) { fmt.Println(err) })
 	case "refresh":
-		refreshToken(client, ctx, func(err error) {})
+		refreshToken(client, ctx, func(err error) { fmt.Println(err.Error()) })
 	case "hello":
 		hello(client, ctx, func(err error) {})
 	default:

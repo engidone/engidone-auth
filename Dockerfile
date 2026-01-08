@@ -40,6 +40,8 @@ COPY . .
 
 # Build the server
 RUN CGO_ENABLED=1 GOOS=linux go build -o server ./cmd/server/main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -o client ./cmd/client
+
 
 # Final stage
 FROM alpine:latest
@@ -51,6 +53,7 @@ WORKDIR /root/
 
 # Copy the binary from builder stage
 COPY --from=builder /app/server .
+COPY --from=builder /app/client .
 RUN mkdir -p ./cmd/config
 RUN mkdir -p ./keys
 COPY --from=builder /app/cmd/config ./cmd/config
