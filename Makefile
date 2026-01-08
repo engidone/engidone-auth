@@ -16,7 +16,7 @@ run: build
 # Run with hot reload (requires air)
 dev:
 	@command -v air >/dev/null 2>&1 || { echo "❌ 'air' not installed. Install with: go install github.com/cosmtrek/air@latest"; exit 1; }
-	air
+	godotenv -f .env air
 
 # Development setup (install deps, generate code, build)
 dev-setup:
@@ -33,7 +33,7 @@ migrate: migrate-up
 migrate-up:
 	@echo "🗄️ Running all pending migrations..."
 	@if [ -d "./migrations" ]; then \
-		go run cmd/db/migrate.go; \
+		engidone migrate; \
 	else \
 		echo "❌ No migrations directory found at ./migrations"; \
 	fi

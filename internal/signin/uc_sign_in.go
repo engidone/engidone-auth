@@ -1,8 +1,6 @@
 package signin
 
 import (
-	"fmt"
-
 	"github.com/engidone/go-utils/log"
 )
 
@@ -12,12 +10,11 @@ func (uc *UseCase) SingIn(credentials Credentials) (*Result, error) {
 	if err := uc.validateCredentials(credentials); err != nil {
 		return nil, err
 	}
-
+	
 	user, _ := uc.usersUC.GetUser(credentials.Username)
-
+	
 	// Verify user and password
 	_, err := uc.credentialsUC.VerifyCredentials(user.ID, credentials.Password)
-
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +43,6 @@ func (uc *UseCase) SingIn(credentials Credentials) (*Result, error) {
 		Token:        token,
 		RefreshToken: refreshToken,
 	}
-
-	fmt.Println("resut:: ", user)
 
 	return result, nil
 }

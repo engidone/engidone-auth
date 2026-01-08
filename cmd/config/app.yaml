@@ -2,7 +2,7 @@ application:
   name: engidone-auth
   version: 1.0.0
   server:
-    port: 3000
+    port: 3001
 logging: console
 database:
   dsn: "{engine}://{user}:{password}@{host}:{port}/{db_name}?sslmode={ssl_mode}"

@@ -13,6 +13,7 @@ func NewDBConnection(appConfig *config.AppConfig) (*sql.DB, error) {
 	dsn := appConfig.Database.DSN
 
 	dsn = database.BuildDSN(appConfig.Database)
+
 	db, err := sql.Open(appConfig.Database.Engine, dsn)
 	if err != nil {
 		return nil, err

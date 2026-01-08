@@ -2,6 +2,7 @@ package recovery
 
 import (
 	"github.com/engidone/go-utils/log"
+	"github.com/samber/oops"
 )
 
 func (uc *UseCase) ValidateToken(code string) (*ValidateResponse, error) {
@@ -13,6 +14,9 @@ func (uc *UseCase) ValidateToken(code string) (*ValidateResponse, error) {
 
 	if recoveryCode != code {
 		log.Warn("Invalid recovery code", log.String("code", code))
+		oops.
+			With("code", code).
+			Wrap(RecoveryCodeInvalid)
 		return &ValidateResponse{Success: false, Message: "Invalid code"}, nil
 	}
 

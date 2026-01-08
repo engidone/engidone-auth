@@ -11,7 +11,7 @@ func signIn(client pb.AuthServiceClient, ctx context.Context, onError func(err e
 	// Llamar al servicio SignIn
 	req := &pb.SignInRequest{
 		Username: "caporras",
-		Password: "password123",
+		Password: "password1234",
 	}
 
 	resp, err := client.SignIn(ctx, req)

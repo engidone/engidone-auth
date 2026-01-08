@@ -72,6 +72,10 @@ func (s *GRPCServer) signInModule(dbModule *db.Queries) *signin.UseCase {
 }
 
 func (s *GRPCServer) dbModule() *db.Queries {
-	dbconn, _ := db.NewDBConnection(s.appConfig)
+	dbconn, err := db.NewDBConnection(s.appConfig)
+	if err != nil {
+		log.Fatal("Error connecting to database: ", err.Error())
+	}
+	log.Successf("connected to database:  %s", s.appConfig.Database.DBName)
 	return db.New(dbconn)
 }

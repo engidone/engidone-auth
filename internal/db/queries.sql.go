@@ -35,7 +35,7 @@ func (q *Queries) GetCredential(ctx context.Context, arg GetCredentialParams) (C
 }
 
 const getRecoveryCode = `-- name: GetRecoveryCode :one
-SELECT code FROM recovery_codes WHERE code = $1 AND is_valid = TRUE AND expires_at <= CURRENT_TIMESTAMP
+SELECT code FROM recovery_codes WHERE code = $1 AND is_valid = TRUE AND expires_at >= CURRENT_TIMESTAMP
 `
 
 func (q *Queries) GetRecoveryCode(ctx context.Context, code string) (string, error) {

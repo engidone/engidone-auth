@@ -14,7 +14,11 @@ func (appUC *AppUseCase) RefreshToken(ctx context.Context, req *pb.RefreshTokenR
 	singInRes, err := appUC.jwtUC.RefreshToken(req.Token, req.RefreshToken)
 
 	if err != nil {
-		// Simple error mapping for refresh token
+
+		if jwt.IsErrorCode(err, jwt.CodeNotFoundRefreshToken) {
+			return nil, status.Error(codes.NotFound, "Refresh token not found")
+		}
+
 		if jwt.IsErrorCode(err, jwt.CodeInvalidToken) || jwt.IsErrorCode(err, jwt.CodeInvalidRefreshToken) {
 			return nil, status.Error(codes.Unauthenticated, "Invalid or expired session")
 		}

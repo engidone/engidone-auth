@@ -1,8 +1,8 @@
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/engidone/go-utils v0.0.5 h1:7DOaiVBPR+0wsKaoMB2wpF2qeseMLxXS49MssYPovAc=
-github.com/engidone/go-utils v0.0.5/go.mod h1:XXEDGUT+qogslElAgHiC5znS3qBHpNK8ubLkfJ7hkaE=
+github.com/engidone/go-utils v0.0.7 h1:vOnwZ8LLRuhrhaVBYvO0SllOu6AX1ty8rk9kldpj/EU=
+github.com/engidone/go-utils v0.0.7/go.mod h1:XXEDGUT+qogslElAgHiC5znS3qBHpNK8ubLkfJ7hkaE=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
 github.com/fatih/color v1.18.0/go.mod h1:4FelSpRwEGDpQ12mAdzqdOukCy4u8WUtOY6lkT/6HfU=
 github.com/go-logr/logr v1.4.3 h1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=
